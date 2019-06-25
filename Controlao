@@ -1,0 +1,100 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+entity Controlao is port(
+	clock: in std_logic;
+	reset: in std_logic;
+	enter: in std_logic;
+	overf, end_game, end_time, win1, win0: in std_logic;
+	sel: out std_logic_vector(1 downto 0);	
+	R1, R2, E1, E2, E3, E4: out std_logic
+	);
+end Controlao;
+
+architecture bhv of Controlao is
+	type STATES is (init, setup, play, result, check, next_round, waiit);
+	signal EA, PE: STATES;
+	begin
+	
+	P1: process(clock, reset)
+	begin
+		if reset= '1' then
+			EA <= init;
+		elsif clock'event and clock= '0' then
+			EA <= PE;
+		end if;
+	end process;
+	
+	P2: process(EA)
+	begin
+		case EA is
+			when init =>
+				R1 <= '0';
+				R2 <= '0';
+				E1 <= '1';
+				E2 <= '1';
+				E3 <= '1';
+				E4 <= '1';
+				PE <= init when enter = '0' else setup;
+
+			when setup =>
+				R1 <= '1';
+				R2 <= '1';
+				E1 <= '1';
+				E2 <= '1';
+				E3 <= '0';
+				E4 <= '0';
+				PE <= setup when enter = '0' else play;
+
+			when play =>
+				R1 <= '1';
+				R2 <= '1';
+				E1 <= '0';
+				E2 <= '0';
+				E3 <= '0';
+				E4 <= '1';
+				PE <= result when end_time = '1' else
+				      play when enter = '0' else
+				      check when enter = '1';
+
+			when result =>
+				R1 <= '1';
+				R2 <= '1';
+				E1 <= '0';
+				E2 <= '0';
+				E3 <= '0';
+				E4 <= '0';
+				PE <= result when enter = '0' else init;
+
+			when check =>
+				R1 <= '1';
+				R2 <= '0';
+				E1 <= '0';
+				E2 <= '0';
+				E3 <= '1';
+				E4 <= '0';
+				PE <= result when (win1 or win0) = '1' else next_round;
+
+			when next_round =>
+				R1 <= '1';
+				R2 <= '1';
+				E1 <= '0';
+				E2 <= '0';
+				E3 <= '1';
+				E4 <= '0';
+				PE <= waiit;
+
+			when waiit =>
+				R1 <= '1';
+				R2 <= '1';
+				E1 <= '0';
+				E2 <= '0';
+				E3 <= '0';
+				E4 <= '0';
+				PE <= waiit when enter = '0' else play;
+			
+		end case;
+	end process;
+end bhv;
+
+

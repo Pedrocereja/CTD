@@ -1,0 +1,33 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+entity Logica is port (
+	end_game, U0, U1: in std_logic;
+	Win0, Win1: out std_logic
+	);
+end Logica;
+
+architecture arqdtp of Logica is
+
+	begin
+
+	P1: process(clock, reset)
+		begin
+			if end_game = '1' then
+				if (U0 > U1) then
+					Win0 <= '1';
+					Win1 <= '0';
+				elsif (U0 < U1) then
+					Win0 <= '0';
+					Win1 <= '1';
+				end if;
+
+			else
+				Win0 <= '0';
+				Win1 <= '0';
+			end if;
+		end process;
+	
+end arqdtp;
